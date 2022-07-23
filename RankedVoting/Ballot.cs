@@ -13,7 +13,7 @@ namespace Ranked_voting
         {
             var values = csvLine.Split(',');
             _choices = new List<string>();
-            foreach (var columnIndex in columnsWithChoices)           
+            foreach (var columnIndex in columnsWithChoices)
                 _choices.Add(values[columnIndex]);
         }
 
@@ -36,5 +36,22 @@ namespace Ranked_voting
         {
             return _choices.Contains(x);
         }
+
+        public bool IsIncomplete
+        {
+            get
+            {
+                return _choices.Contains(string.Empty);
+            }
+        }
+
+        public bool HasDuplicateChoices
+        {
+            get
+            {
+                return _choices.Distinct().Count() != _choices.Count();
+            }
+        }
+
     }
 }
