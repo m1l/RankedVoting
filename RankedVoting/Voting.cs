@@ -5,13 +5,17 @@ using System.Diagnostics.Metrics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Documents;
 
 namespace Ranked_voting
 {
     internal static class Voting
     {
+        static List<string> _output;
         internal static string ProcessBallotsFromCSV(string filepath, List<int> columnsWithChoices)
         {
+            _output = new List<string>();
+
             List<Ballot> ballots = new List<Ballot>();
             foreach (string line in System.IO.File.ReadLines(filepath))
             {
@@ -23,6 +27,7 @@ namespace Ranked_voting
             }
             //remove header row with columns names
             ballots.RemoveAt(0);
+            Output($"Found {ballots.Count} balots.");
             Dictionary<string, int> candidates = new Dictionary<string, int>();
             string previousRoundLoser = null;
             int round = 1;
@@ -30,18 +35,32 @@ namespace Ranked_voting
             while (true)
             {
                 ResetRoundNumbers(candidates);
-                CountVotes(ballots, candidates, previousRoundLoser);
+                if (previousRoundLoser != null)
+                    RemoveLoserFromAllBallots(ballots, previousRoundLoser);
+                CountVotes(ballots, candidates);
+
+                Output($"Round {round}");
+
                 results += $"Round {round}" + Environment.NewLine + Environment.NewLine;
                 candidates = Sort(candidates);
                 results += OutputRoundResults(candidates);
                 results += Environment.NewLine;
+                
                 if (candidates.Count==2)
                     break;
                 previousRoundLoser = RemoveRoundLoser(candidates, ballots);
                 results += $"Removing {previousRoundLoser}" + Environment.NewLine + Environment.NewLine;
                 round++;
+                Output(string.Empty);
             }
-            return results;
+            //return results;
+            return string.Join(Environment.NewLine, _output);
+        }
+
+        private static void RemoveLoserFromAllBallots(List<Ballot> ballots, string loser)
+        {
+            foreach (Ballot ballot in ballots)
+                ballot.RemoveLoser(loser);
         }
 
         private static void ResetRoundNumbers(Dictionary<string, int> candidates)
@@ -50,14 +69,14 @@ namespace Ranked_voting
                 candidates[candidate.Key] = 0;
         }
 
-        internal static void CountVotes(List<Ballot> ballots, Dictionary<string, int> candidates, string previousRoundLoser)
+        internal static void CountVotes(List<Ballot> ballots, Dictionary<string, int> candidates)
         {            
             int i = 0;
             while (i < ballots.Count)
             {
                 var ballot = ballots[i];
                
-                ballot.RemoveLoser(previousRoundLoser);
+                //ballot.RemoveLoser(previousRoundLoser);
                 string choice = ballot.GetNextChoice();
                 
                 if (choice != null)
@@ -94,7 +113,9 @@ namespace Ranked_voting
                 double perc = (double)candidate.Value / (double)totalvotes * 100;
                 //Output($"{candidate.Key} has {perc.ToString("0.#")}% with {candidate.Value} votes");
                 result += $"{candidate.Key} has {perc.ToString("0.#")}% with {candidate.Value} votes" + Environment.NewLine;
+                Output($"{candidate.Key} has {perc.ToString("0.#")}% with {candidate.Value} votes");
             }
+           
             return result;
         }
         private static string RemoveRoundLoser(Dictionary<string, int> candidates, List<Ballot> ballots)
@@ -108,11 +129,14 @@ namespace Ranked_voting
             var ties = tie.Select(x => x.Key);
             int n = sorted.Count();
             if (ties.Count() > 1)
+            {
+                Output($"Tie for removal! Candidates {string.Join(", ", ties.ToArray())} have {loservotes} votes");
                 loser = BreakTieReturnLoser(ties, ballots);
-                //&&
-                //sorted.ElementAtOrDefault(n-1).Value == sorted.ElementAtOrDefault(n-2).Value)
-                //loser = BreakTieReturnLoser(ballots, sorted.ElementAtOrDefault(n-1).Key, sorted.ElementAtOrDefault(n-2).Key);
-
+            }
+            //&&
+            //sorted.ElementAtOrDefault(n-1).Value == sorted.ElementAtOrDefault(n-2).Value)
+            //loser = BreakTieReturnLoser(ballots, sorted.ElementAtOrDefault(n-1).Key, sorted.ElementAtOrDefault(n-2).Key);
+            Output($"{loser} lost this round");
             candidates.Remove(loser);
             return loser;
         }
@@ -121,20 +145,26 @@ namespace Ranked_voting
             List<int> recount = new List<int>();
             int lowestCount = int.MaxValue;
             string loser = String.Empty;
+
             foreach (var candidate in candidates)
             {
                 int othervotes = 0;
                 foreach (Ballot ballot in ballots)
                     if (ballot.HasAnyOf(candidate))
                         othervotes++;
+                Output($"Candidate {candidate} has {othervotes} votes total");
                 if (othervotes < lowestCount)
-                    loser = candidate;          
+                {
+                    loser = candidate;
+                    lowestCount = othervotes;
+                }
                 else if (othervotes == lowestCount)
                 {
                     Random rand = new Random();
                     loser = rand.Next(0, 1) == 0 ? loser : candidate;
                 }
             }
+
             return loser;
         }
 
@@ -156,6 +186,9 @@ namespace Ranked_voting
             }
             return count1 < count2 ? can1 : can2;
         }
-
+        private static void Output(string s)
+        {
+            _output.Add(s);
+        }
     }
 }
