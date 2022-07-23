@@ -5,18 +5,27 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:RankedVoting"
         mc:Ignorable="d"
-        Title="Raned-Choice Voting" Height="450" Width="800">
-    <DockPanel LastChildFill="True">
-        <StackPanel Orientation="Vertical">
-            <Button x:Name="LoadBtn" Content="Load CSV with ballots" HorizontalAlignment="Left" VerticalAlignment="Top"
-                    DockPanel.Dock="Top" Click="LoadBtn_Click"/>
+        WindowStartupLocation="CenterScreen"
+        Title="Ranked-Choice Voting" Height="600" Width="400" MinHeight="300" MinWidth="300">
+    <DockPanel LastChildFill="True" Margin="20">
+            <StackPanel x:Name="Step1" Orientation="Vertical" DockPanel.Dock="Top">
+                <Button x:Name="LoadBtn" Content="Load CSV with ballots" HorizontalAlignment="Center" VerticalAlignment="Top" DockPanel.Dock="Top" 
+                        Click="LoadBtn_Click"/>
+            </StackPanel>
 
-            <TextBlock Text="Select columns containing 1st to nth choice" Margin="0,10,0,0"/>
-            <ListBox x:Name="ColumnsLB" DockPanel.Dock="Bottom" HorizontalAlignment="Stretch" 
-                     SelectionMode="Multiple"/>
+        <StackPanel x:Name="Step2" Orientation="Vertical" DockPanel.Dock="Top" Margin="0,20,0,0">
+                <TextBlock Text="Select columns containing 1st to nth choice" />
+                <ListBox x:Name="ColumnsLB" DockPanel.Dock="Bottom" HorizontalAlignment="Stretch" 
+                        SelectionMode="Extended"/>
+                <Button x:Name="ProcessBtn" Content="Process ballots" HorizontalAlignment="Center" VerticalAlignment="Top" DockPanel.Dock="Top"
+                        Click="ProcessBtn_Click" Margin="5"/>
+            </StackPanel>
 
-            <Button x:Name="ProcessBtn" Content="Process ballots" HorizontalAlignment="Left" VerticalAlignment="Top"
-                    DockPanel.Dock="Top" Click="ProcessBtn_Click"/>
-        </StackPanel>
+        <DockPanel x:Name="Step3"  DockPanel.Dock="Top" Margin="0,20,0,0" LastChildFill="True">
+            <TextBlock Text="Results" HorizontalAlignment="Center" DockPanel.Dock="Top"/>
+            <TextBox x:Name="ResultsTxt" HorizontalAlignment="Stretch" DockPanel.Dock="Bottom" 
+                     VerticalScrollBarVisibility="Visible"
+                     />
+        </DockPanel>
     </DockPanel>
 </Window>

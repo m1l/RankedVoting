@@ -29,8 +29,12 @@ namespace Ranked_voting
         }
         public void RemoveLoser(string loser)
         {
-            //if (!string.IsNullOrEmpty(loser))
-                _choices.Remove(loser);
+            _choices.RemoveAll(x => x == loser);
+        }
+
+        public bool HasAnyOf(string x)
+        {
+            return _choices.Contains(x);
         }
     }
 }

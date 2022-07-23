@@ -24,6 +24,8 @@ namespace RankedVoting
         public MainWindow()
         {
             InitializeComponent();
+            Step2.Visibility = Visibility.Collapsed;
+            Step3.Visibility = Visibility.Collapsed;
         }
 
         private void LoadBtn_Click(object sender, RoutedEventArgs e)
@@ -37,8 +39,9 @@ namespace RankedVoting
                 string[] columns = ParseCSVColumnsFromFile(_csvFilePath);
                 if (columns != null)
                 {
+                    Step2.Visibility = Visibility.Visible;
                     PopulateListBoxWithColumns(columns);
-                    PreselectColumns();
+                    PreselectColumns();                    
                 }
                 else
                     MessageBox.Show("Couldn't find columns");
@@ -73,26 +76,18 @@ namespace RankedVoting
 
         private void ProcessBtn_Click(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(_csvFilePath))
-            {
-                MessageBox.Show("Load CSV file first");
-                return;
-            }
             if (ColumnsLB.SelectedItems.Count > 1)
             {
+                Step3.Visibility = Visibility.Visible;
                 List<int> columnsWithChoices = new List<int>();
                 foreach (var item in ColumnsLB.SelectedItems)
                     columnsWithChoices.Add(ColumnsLB.Items.IndexOf(item));
-                Voting.ProcessBallotsFromCSV(_csvFilePath, columnsWithChoices);
+                ResultsTxt.Text = Voting.ProcessBallotsFromCSV(_csvFilePath, columnsWithChoices);
             } 
             else if (ColumnsLB.SelectedItems.Count == 0)
-            {
                 MessageBox.Show("Select all columns contaning voting choices. You can select one, hold shift and click last that has a choice.");
-            }
             else if (ColumnsLB.SelectedItems.Count == 1)
-            {
                 MessageBox.Show("Select all columns contaning voting choices. Ranked-Choice voting must have more than one voting preference");
-            }
         }
     }
 }
