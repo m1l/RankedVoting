@@ -41,18 +41,26 @@ namespace RankedVoting
                 {
                     Step2.Visibility = Visibility.Visible;
                     PopulateListBoxWithColumns(columns);
-                    PreselectColumns();                    
+                    PreselectColumns(columns);                    
                 }
                 else
                     MessageBox.Show("Couldn't find columns");
             }
         }
 
-        private void PreselectColumns()
+        private void PopulateListBoxWithColumns(string[] columns)
+        {
+            ColumnsLB.Items.Clear();
+            foreach (var column in columns)
+                ColumnsLB.Items.Add(column);
+        }
+
+        private void PreselectColumns(string[] columns)
         {
             if (ColumnsLB.Items.Count > 2)
                 for (int i = 1; i < ColumnsLB.Items.Count; i++)
-                    ColumnsLB.SelectedItems.Add(ColumnsLB.Items[i]);
+                    if (columns[i].TrimStart().StartsWith("["))
+                        ColumnsLB.SelectedItems.Add(ColumnsLB.Items[i]);
         }
 
         private string[] ParseCSVColumnsFromFile(string filepath)
@@ -67,12 +75,7 @@ namespace RankedVoting
             return null;
         }
 
-        private void PopulateListBoxWithColumns(string[] columns)
-        {
-            ColumnsLB.Items.Clear();
-            foreach (var column in columns)
-                ColumnsLB.Items.Add(column);
-        }
+        
 
         private void ProcessBtn_Click(object sender, RoutedEventArgs e)
         {

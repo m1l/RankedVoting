@@ -21,7 +21,7 @@ namespace Ranked_voting
             foreach (string line in System.IO.File.ReadLines(filepath))
             {
                 Ballot ballot = new Ballot(line, columnsWithChoices);
-                if (ballot != null)
+                if (ballot != null && ballot.IsValid)
                 {
                     ballots.Add(ballot);
                 }
@@ -41,6 +41,7 @@ namespace Ranked_voting
             int round = 1;
             while (true)
             {
+                
                 Output($"Round {round}");
 
                 ResetRoundNumbers(candidates);
@@ -51,8 +52,8 @@ namespace Ranked_voting
 
                 candidates = Sort(candidates);
                 OutputRoundResults(candidates);
-                
-                if (candidates.Count==2)
+
+                if (candidates.Count == 2)
                     break;
                 previousRoundLoser = RemoveRoundLoser(candidates, ballots);
                 round++;

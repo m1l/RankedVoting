@@ -12,10 +12,21 @@ namespace Ranked_voting
         public Ballot(string csvLine, List<int> columnsWithChoices)
         {
             var values = csvLine.Split(',');
+            if (values.Count() < columnsWithChoices.Max() + 1)
+                return;
             _choices = new List<string>();
             foreach (var columnIndex in columnsWithChoices)
                 _choices.Add(values[columnIndex]);
         }
+
+        public bool IsValid
+        {
+            get
+            {
+                return _choices?.Count() > 0;
+            }
+        }
+
 
         public string GetNextChoice()
         {
